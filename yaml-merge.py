@@ -78,10 +78,10 @@ def main():
 
     if data:
         if args.output == "-":
-            print(yaml.dump(data))
+            yaml.dump(data, sys.stdout, default_flow_style=False)
         else:
             with open(args.output, 'w') as fh:
-                yaml.dump(data, fh)
+                yaml.dump(data, fh, default_flow_style=False)
     else:
         lg.error("No merged data")
         sys.exit(1)
