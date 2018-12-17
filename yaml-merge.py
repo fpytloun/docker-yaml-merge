@@ -17,14 +17,17 @@ def parse_args():
     parser.add_argument('-o', '--output', default="-", help="Output file, defaults to stdout")
     parser.add_argument('--extension', nargs='+', default=["yaml", "yml"], help="List of extensions, defaults to yml, yaml. Can be 'any' to skip check")
     parser.add_argument('--filter', help="Regular expression to filter keys for merging")
+    parser.add_argument('--only-missing', help="Merge only missing keys", action="store_true")
     parser.add_argument('-b', '--base', help="Base file to merge other into, useful with --filter parameter")
     parser.add_argument('file', nargs='+')
     args = parser.parse_args()
     return args
 
-def merge(source, destination, regex=None):
+def merge(source, destination, regex=None, only_missing=False):
     for key, value in source.items():
         if regex and not regex.search(key):
+            continue
+        if only_missing and destination.has_key(key):
             continue
         if isinstance(value, dict):
             # get node or create one
@@ -63,7 +66,7 @@ def main():
                 continue
             lg.info("Merging file {}".format(entry))
             with open(entry, 'r') as fh:
-                merge(yaml.load(fh), data, regex)
+                merge(yaml.load(fh), data, regex, args.only_missing)
         else:
             lg.info("Traversing directory structure {}".format(entry))
             for root, dirs, files in os.walk(entry):
@@ -74,7 +77,7 @@ def main():
                     path = os.path.join(root, f)
                     lg.info("Merging file {}".format(path))
                     with open(path, 'r') as fh:
-                        merge(yaml.load(fh), data, regex)
+                        merge(yaml.load(fh), data, regex, args.only_missing)
 
     if data:
         if args.output == "-":
