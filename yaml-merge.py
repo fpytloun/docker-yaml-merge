@@ -27,7 +27,7 @@ def merge(source, destination, regex=None, only_missing=False):
     for key, value in source.items():
         if regex and not regex.search(key):
             continue
-        if only_missing and destination.has_key(key):
+        if only_missing and key in destination.keys():
             continue
         if isinstance(value, dict):
             # get node or create one
